@@ -94,10 +94,34 @@ class Enrollment(models.Model):
     mode = models.CharField(max_length=5, choices=COURSE_MODES, default=AUDIT)
     rating = models.FloatField(default=5.0)
 
+class Exam(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=300)
 
-# One enrollment could have multiple submission
-# One submission could have multiple choices
-# One choice could belong to multiple submissions
-#class Submission(models.Model):
-#    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
-#    choices = models.ManyToManyField(Choice)
+class Question(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    text = models.CharField(max_length=500)
+    grade = models.IntegerField(null=True)
+
+    def __str__(self):
+        return "Question: " + self.text    
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    text = models.CharField(max_length=300)
+    is_correct = models.BooleanField(default=False)
+
+class Submission(models.Model):
+    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+
+    @staticmethod
+    def total_score(enrollment, exam):
+        total_submissions = Submission.objects.filter(enrollment=enrollment, choice__question__exam=exam)
+        score = 0
+        if total_submissions is not None:
+            for submission in total_submissions:
+                if submission.choice.is_correct == True:
+                    score += 1
+        return score
