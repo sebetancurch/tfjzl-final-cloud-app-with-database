@@ -18,7 +18,13 @@ from django.urls import include, path
 from django.conf.urls.static import static
 from django.conf import settings
 
+# Custom 404 error view
+handler404 = 'onlinecourse.views.error_404'  
+# Custom 403 error view
+handler403 = 'onlinecourse.views.error_403'  
+
 urlpatterns = [
+    path('', include('onlinecourse.urls')),
     path('admin/', admin.site.urls),
     path('onlinecourse/', include('onlinecourse.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

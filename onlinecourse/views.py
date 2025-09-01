@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 # <HINT> Import any new Models here
-from .models import Course, Enrollment
+from .models import Course, Enrollment, Exam, Question, Choice, Submission
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -102,6 +102,17 @@ def enroll(request, course_id):
 
     return HttpResponseRedirect(reverse(viewname='onlinecourse:course_details', args=(course.id,)))
 
+def take_exam(request, exam_id):
+    exam = get_object_or_404(Exam, pk=exam_id)
+    questions = []
+    exam_questions = Question.objects.filter(exam=exam)
+    for question in exam_questions:
+        choices = Choice.objects.filter(question=question)
+        questions.append({'question': question, 'choices': choices})
+    context = {
+        'questions': questions
+    }
+    return render(request, 'onlinecourse/exam_bootstrap.html', context)
 
 # <HINT> Create a submit view to create an exam submission record for a course enrollment,
 # you may implement it based on following logic:
@@ -133,4 +144,10 @@ def extract_answers(request):
 #def show_exam_result(request, course_id, submission_id):
 
 
+# 404 Not found error view
+def error_404(request, exception):
+    return render(request, 'onlinecourse/not_found.html', status=404)
 
+# 403 Not authorized 
+def error_403(request, exception):
+    return render(request, 'onlinecourse/not_authorized.html', status=403)

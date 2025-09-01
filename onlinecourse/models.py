@@ -103,6 +103,7 @@ class Question(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     text = models.CharField(max_length=500)
     grade = models.IntegerField(null=True)
+    isMultipleChoice = models.BooleanField(default=False)
 
     def __str__(self):
         return "Question: " + self.text    

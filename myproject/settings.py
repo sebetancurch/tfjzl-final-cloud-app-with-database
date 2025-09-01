@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
-
+import environ
 import os
 
 
@@ -30,6 +30,14 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 CSRF_TRUSTED_ORIGINS = ['https://*.cognitiveclass.ai']
+
+# Initialise environment variables
+env = environ.Env()
+
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+DB_PASSWORD = env('DB_PASSWORD')
 
 # Application definition
 INSTALLED_APPS = [
@@ -82,7 +90,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'final_project_django',
         'USER': 'postgres',
-        'PASSWORD': 'sergioevil202395',
+        'PASSWORD': DB_PASSWORD,
         'HOST': 'localhost',
         'PORT': '5433',
     }
