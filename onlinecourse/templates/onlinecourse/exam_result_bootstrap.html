@@ -1,22 +1,104 @@
-{% extends "onlinecourse/base.html" %} {% block content %}
-<div class="container-fluid">
+{% extends "onlinecourse/base.html" %}
+
+{% block content %}
+<div class="container my-5">
+  <!-- Grade result -->
   {% if grade > 80 %}
-  <div class="alert alert-success">
-    <!--HINT Display passed info -->
+  <div class="alert alert-success text-center shadow-sm p-4">
+    <h1 class="display-4">{{ grade }}%</h1>
+    <p class="lead">You passed the exam!</p>
   </div>
   {% else %}
-  <div class="alert alert-danger">
-    <!--HINT Display failed info -->
+  <div class="alert alert-danger text-center shadow-sm p-4">
+    <h1 class="display-4">{{ grade }}%</h1>
+    <p class="lead">You didn’t pass this time. Keep practicing!</p>
+    <a
+      class="btn btn-outline-danger mt-3"
+      href="{% url 'onlinecourse:course_details' course.id %}"
+    >
+      🔄 Re-test
+    </a>
   </div>
-  <a
-    class="btn btn-link text-danger"
-    href="{% url 'onlinecourse:course_details' course.id %}"
-    >Re-test</a
-  >
   {% endif %}
-  <div class="card-columns-vertical mt-1">
-    <h5 class="">Exam results</h5>
-    <!--HINT Display exam results-->
+
+  <!-- Exam results -->
+  <div class="card shadow-sm border-0 rounded mt-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Exam Results</h5>
+    </div>
+    <div class="card-body">
+      {% for question in questions %}
+      <div class="mb-4 p-3 border rounded bg-light">
+        <p class="font-weight-bold">
+          {{ forloop.counter }}. {{ question.question.text }}
+        </p>
+
+        {% if question.question.isMultipleChoice %}
+          {% for choice in question.choices %}
+          <div class="form-check ml-3">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              name="{{ question.question.id }}"
+              value="{{ choice.id }}"
+              id="choice_{{ choice.id }}"
+              disabled
+              {% if choice.isSelected %}checked{% endif %}
+            />
+            {% if choice.isSelected and choice.isCorrect %}
+            <label class="form-check-label bg-success text-white p-2 rounded" for="choice_{{ choice.id }}">
+              {{ choice.text }}
+            </label>
+            {% elif choice.isSelected and not choice.isCorrect %}
+            <label class="form-check-label bg-danger text-white p-2 rounded" for="choice_{{ choice.id }}">
+              {{ choice.text }}
+            </label>
+            {% elif choice.isCorrect %}
+            <label class="form-check-label border border-success text-success p-2 rounded" for="choice_{{ choice.id }}">
+              ✔ Correct answer: {{ choice.text }}
+            </label>
+            {% else %}
+            <label class="form-check-label" for="choice_{{ choice.id }}">
+              {{ choice.text }}
+            </label>
+            {% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+          {% for choice in question.choices %}
+          <div class="form-check ml-3">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="{{ question.question.id }}"
+              value="{{ choice.id }}"
+              id="choice_{{ choice.id }}"
+              disabled
+              {% if choice.isSelected %}checked{% endif %}
+            />
+            {% if choice.isSelected and choice.isCorrect %}
+            <label class="form-check-label bg-success text-white p-2 rounded" for="choice_{{ choice.id }}">
+              {{ choice.text }}
+            </label>
+            {% elif choice.isSelected and not choice.isCorrect %}
+            <label class="form-check-label bg-danger text-white p-2 rounded" for="choice_{{ choice.id }}">
+              {{ choice.text }}
+            </label>
+            {% elif choice.isCorrect %}
+            <label class="form-check-label border border-success text-success p-2 rounded" for="choice_{{ choice.id }}">
+              ✔ Correct answer: {{ choice.text }}
+            </label>
+            {% else %}
+            <label class="form-check-label" for="choice_{{ choice.id }}">
+              {{ choice.text }}
+            </label>
+            {% endif %}
+          </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
   </div>
 </div>
 {% endblock content %}

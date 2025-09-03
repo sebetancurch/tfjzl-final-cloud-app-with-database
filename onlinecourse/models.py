@@ -1,5 +1,6 @@
 import sys
 from django.utils.timezone import now
+from datetime import datetime
 try:
     from django.db import models
 except Exception:
@@ -55,7 +56,7 @@ class Learner(models.Model):
 # Course model
 class Course(models.Model):
     name = models.CharField(null=False, max_length=30, default='online course')
-    image = models.ImageField(upload_to='course_images/')
+    image = models.ImageField(upload_to='course_images/', null=True)
     description = models.CharField(max_length=1000)
     pub_date = models.DateField(null=True)
     instructors = models.ManyToManyField(Instructor)
@@ -102,8 +103,8 @@ class Exam(models.Model):
 class Question(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     text = models.CharField(max_length=500)
-    grade = models.IntegerField(null=True)
-    isMultipleChoice = models.BooleanField(default=False)
+    grade = models.IntegerField(default=0)
+    is_multiple_choice = models.BooleanField(default=False)
 
     def __str__(self):
         return "Question: " + self.text    
@@ -115,14 +116,9 @@ class Choice(models.Model):
 
 class Submission(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
-    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    choices = models.ManyToManyField(Choice)
+    date_time = models.DateTimeField(default=datetime.now)
 
-    @staticmethod
-    def total_score(enrollment, exam):
-        total_submissions = Submission.objects.filter(enrollment=enrollment, choice__question__exam=exam)
-        score = 0
-        if total_submissions is not None:
-            for submission in total_submissions:
-                if submission.choice.is_correct == True:
-                    score += 1
-        return score
+    def __str__(self):
+        enrollment = Enrollment.objects.get(id=self.enrollment)
+        return "Exam taken in " + self.date_time + " by: " + enrollment.user.firstname

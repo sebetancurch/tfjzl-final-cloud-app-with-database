@@ -13,39 +13,62 @@
   </head>
 
   <body>
-    <form action="" method="post">
-      {% csrf_token %} {% for question in questions %}
-      <p><strong>{{ question.question.text }}</strong></p>
-      {% if question.question.isMultipleChoice %} { checkboxes #} {% for choice
-      in question.choices %}
-      <div class="form-check">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          name="question_{{ question.question.id }}"
-          value="{{ choice.id }}"
-          id="choice_{{ choice.id }}"
-        />
-        <label class="form-check-label" for="choice_{{ choice.id }}">
-          {{ choice.text }}
-        </label>
-      </div>
-      {% endfor %} {% else %} {% for choice in question.choices %}
-      <div class="form-check">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="question_{{ question.question.id }}"
-          value="{{ choice.id }}"
-          id="choice_{{ choice.id }}"
-        />
-        <label class="form-check-label" for="choice_{{ choice.id }}">
-          {{ choice.text }}
-        </label>
-      </div>
-      {% endfor %} {% endif %} {% endfor %}
+    <div class="container mt-5">
+      <div class="card shadow-sm rounded">
+        <div class="card-body">
+          <h3 class="card-title mb-4">Exam</h3>
 
-      <button class="btn btn-primary mt-3" type="submit">Submit</button>
-    </form>
+          <form action="{% url 'onlinecourse:submit' course_id %}" method="post">
+          {% csrf_token %}
+
+          {% for question in questions %}
+          <div class="mb-4">
+            <p class="font-weight-bold">
+              {{ forloop.counter }}. {{ question.question.text }}
+            </p>
+
+            {% if question.question.isMultipleChoice %}
+              {% for choice in question.choices %}
+              <div class="form-check ml-3">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  name="{{ question.question.id }}"  
+                  value="{{ choice.id }}"
+                  id="choice_{{ choice.id }}"
+                />
+                <label class="form-check-label" for="choice_{{ choice.id }}">
+                  {{ choice.text }}
+                </label>
+              </div>
+              {% endfor %}
+            {% else %}
+              {% for choice in question.choices %}
+              <div class="form-check ml-3">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="{{ question.question.id }}"
+                  value="{{ choice.id }}"
+                  id="choice_{{ choice.id }}"
+                />
+                <label class="form-check-label" for="choice_{{ choice.id }}">
+                  {{ choice.text }}
+                </label>
+              </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+          {% endfor %}
+
+          <button class="btn btn-primary btn-block mt-3" type="submit">
+            Submit
+          </button>
+        </form>
+
+        </div>
+      </div>
+    </div>
+
   </body>
 </html>
