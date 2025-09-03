@@ -27,7 +27,7 @@
               {{ forloop.counter }}. {{ question.question.text }}
             </p>
 
-            {% if question.question.isMultipleChoice %}
+            {% if question.question.is_multiple_choice %}
               {% for choice in question.choices %}
               <div class="form-check ml-3">
                 <input

@@ -144,27 +144,31 @@ def show_exam_result(request, submission_id):
     submission = Submission.objects.get(id=submission_id)
     enrollment = submission.enrollment
     questions = set()
-    for choice in submission.choices:
+    for choice in submission.choices.all():
         choice = choice
         choice_question = choice.question
         questions.add(choice_question)
-    exam_grade = sum(question_to_grade.grade for question_to_grade in questions)
+    exam_grade = sum(question.grade for question in questions)
     question_choices = []
+    grade_submitted = 0
     for question in questions:
         choices_ = Choice.objects.filter(question=question)
         choices_submission = []
-        grade_submitted = 0
         for question_choice in choices_:
-            isSelected = Submission.objects.filter(choices=question_choice).exists()
+            isSelected = question_choice in submission.choices.all()
             isCorrect = question_choice.is_correct
             if isSelected and isCorrect:
-                grade_submitted += question.grade
+                if question.is_multiple_choice:
+                    question_choices_count = Choice.objects.filter(is_correct=True, question=question).count()
+                    grade_submitted += (question.grade/question_choices_count)
+                else:
+                    grade_submitted += question.grade
             choices_submission.append({'text': question_choice.text, 'isSelected': isSelected, 'isCorrect': isCorrect})
         question_choices.append({'question': question, 'choices': choices_submission})
     grade = int((100*grade_submitted)/exam_grade)
     context = {
         'questions': question_choices,
-        'grade': str(grade),
+        'grade': grade,
         'course': enrollment.course
     }
     return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
